@@ -1,3 +1,6 @@
+# Brunch config options
+# See app/config.coffee for app config
+
 exports.config =
   # See http://brunch.io/#documentation for docs.
   files:
