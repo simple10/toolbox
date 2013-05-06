@@ -13,7 +13,9 @@ module.exports = class AuthView extends View
   initialize: ->
     super
     @delegate('click', 'button', @onAuth)
-    @auth = (new Auth).initialize(Config)
+    options = _.extend({}, Config, onchange: => @render())
+    @auth = (new Auth).initialize(options)
+    # todo: add spinner to button while code is being exchanged for token
 
   login: ->
     window.location = @auth.authURL()
@@ -23,7 +25,7 @@ module.exports = class AuthView extends View
     window.location.reload()
 
   onAuth: (evt) ->
-    evt.preventDefault()
+    evt.preventDefault() if evt
     if @auth.isAuthenticated()
       @logout()
     else

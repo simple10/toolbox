@@ -7,3 +7,7 @@ module.exports =
 
   # http://developer.github.com/v3/oauth/#scopes
   oauth_scope: 'public_repo'
+
+  # URL of gatekeeper used to exchange OAuth code for token
+  # https://github.com/prose/gatekeeper
+  oauth_gatekeeper: 'https://toolbox-gatekeeper.herokuapp.com/authenticate/'

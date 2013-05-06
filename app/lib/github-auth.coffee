@@ -2,7 +2,7 @@
 
 module.exports = class GithubAuth
   BASE_AUTH_URL: 'https://github.com/login/oauth/authorize'
-  LS_TOKEN_KEY: 'oauth-token'
+  LS_TOKEN_KEY: 'github-oauth-token'
   @token = null
 
   initialize: (options) ->
@@ -10,19 +10,37 @@ module.exports = class GithubAuth
       oauth_client_id: null
       oauth_scope: 'public_repo'
       sanitize_url: true
+      oauth_gatekeeper: null
+      onchange: null
       token: null
+      code: null
 
     token = options.token
-    @options = _.omit(options, 'token')
+    code = options.code
+    @options = _.omit(options, 'token', 'code')
 
-    token ||= window.location.search.match(/([\?&])(code=([^&]+))/)
-    if _.isArray(token)
-      _.defer(@sanitizeURL, token[1], token[2]) if @options.sanitize_url
-      token = token[3]
-    token ||= localStorage.getItem(@LS_TOKEN_KEY) if localStorage
+    code ||= @checkForCode()
+    if code && !token
+      @exchangeForToken(code)
+    else
+      token ||= localStorage.getItem(@LS_TOKEN_KEY) if localStorage
 
     @login(token)
     this
+
+  checkForCode: ->
+    code = window.location.search.match(/([\?&])(code=([^&]+))/)
+    if _.isArray(code)
+      _.defer(@sanitizeURL, code[1], code[2]) if @options.sanitize_url
+      code[3]
+    else
+      null
+
+  exchangeForToken: (code) ->
+    $.getJSON @options.oauth_gatekeeper + code, (data) =>
+      @login(data.token)
+      if _.isFunction(@options.onchange)
+        @options.onchange()
 
   authURL: ->
     # todo: add state param to prevent CSRF
@@ -39,7 +57,11 @@ module.exports = class GithubAuth
 
   login: (token) ->
     @token = token
-    localStorage.setItem(@LS_TOKEN_KEY, token) if localStorage
+    return unless localStorage
+    if token
+      localStorage.setItem(@LS_TOKEN_KEY, token)
+    else
+      @logout()
 
   logout: ->
     @token = null
