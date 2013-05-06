@@ -1,1 +1,7 @@
-<button class="login">Login to Github</button>
+<button>
+{{#if authed}}
+  Logout
+{{else}}
+  Login via Github
+{{/if}}
+</button>
