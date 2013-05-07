@@ -1,7 +1,9 @@
-<button>
 {{#if authed}}
-  Logout
+  {{#if loading}}
+    <button class="logout"><i class="icon-spinner icon-spin"></i></button>
+  {{else}}
+    <button class="logout"><i class="icon-off"></i></button>
+  {{/if}}
 {{else}}
-  Login via Github
+  <button class="login"><i class="icon-github-alt"></i> Login via Github</button>
 {{/if}}
-</button>
