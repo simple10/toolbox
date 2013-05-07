@@ -4,6 +4,7 @@ module.exports = class GithubAuth
   BASE_AUTH_URL: 'https://github.com/login/oauth/authorize'
   LS_TOKEN_KEY: 'github-oauth-token'
   @token = null
+  @loading = true
 
   initialize: (options) ->
     _.defaults options,
@@ -37,8 +38,10 @@ module.exports = class GithubAuth
       null
 
   exchangeForToken: (code) ->
+    @loading = true
     $.getJSON @options.oauth_gatekeeper + code, (data) =>
       @login(data.token)
+      @loading = false
       if _.isFunction(@options.onchange)
         @options.onchange()
 
@@ -54,6 +57,9 @@ module.exports = class GithubAuth
 
   isAuthenticated: ->
     !!@token
+
+  isLoading: ->
+    @loading
 
   login: (token) ->
     @token = token
